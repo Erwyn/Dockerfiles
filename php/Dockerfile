@@ -1,4 +1,4 @@
-FROM ubuntu:trusty
+FROM debian:jessie
 MAINTAINER Damien Carcel <damien.carcel@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -6,10 +6,23 @@ ENV DEBIAN_FRONTEND noninteractive
 # Install PHP with some extensions
 RUN apt-get update && \
     apt-get --no-install-recommends --no-install-suggests --yes --quiet install \
-        ca-certificates bash-completion curl git imagemagick vim wget sudo \
-        php5-cli php5-apcu php5-curl php5-gd php5-imagick php5-intl php5-mongo php5-mcrypt php5-mysql && \
+        ca-certificates bash-completion curl git imagemagick vim wget sudo && \
     apt-get clean && apt-get --yes --quiet autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Add PHP 5.4
+COPY files/wheezy.list /etc/apt/sources.list.d/wheezy.list
+COPY files/php5.preferences /etc/apt/preferences.d/php5
+RUN apt-get update && \
+    apt-get --no-install-recommends --no-install-suggests --yes --quiet install \
+        php-pear build-essential php5-dev php5-common \
+        php5-cli php-apc php5-curl php5-gd php5-imagick php5-intl php5-mcrypt php5-mysql && \
+    apt-get clean && apt-get --yes --quiet autoremove --purge && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Instal PHP mongo extension
+RUN pecl install mongo && \
+    echo "extension=mongo.so" | sudo tee /etc/php5/conf.d/mongo.ini > /dev/null
 
 # Add a "docker" user
 RUN useradd docker --shell /bin/bash --create-home \
