@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM ubuntu:trusty
 MAINTAINER Damien Carcel <damien.carcel@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get --no-install-recommends --no-install-suggests --yes --quiet install \
         ca-certificates bash-completion curl git imagemagick vim wget sudo \
-        php5-cli php5-apcu php5-curl php5-gd php5-imagick php5-intl php5-mongo php5-mcrypt php5-mysql php5-xdebug && \
+        php5-cli php5-apcu php5-curl php5-gd php5-imagick php5-intl php5-mongo php5-mcrypt php5-mysql && \
     apt-get clean && apt-get --yes --quiet autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -22,8 +22,7 @@ RUN curl -sSL https://getcomposer.org/installer | php -- --install-dir=/usr/loca
 RUN chmod +x /usr/local/bin/composer
 
 # Configure PHP
-RUN php5enmod mcrypt && \
-    php5dismod xdebug
+RUN php5enmod mcrypt
 
 RUN sed -i "s/;date.timezone =/date.timezone = Europe\/Paris/" /etc/php5/cli/php.ini && \
     sed -i "s/memory_limit = .*/memory_limit = 2G/" /etc/php5/cli/php.ini && \
